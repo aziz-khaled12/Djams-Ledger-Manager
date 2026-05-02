@@ -1,4 +1,4 @@
-import express, { Express } from "express";
+import express from "express";
 import cors from "cors";
 import session from "express-session";
 import pinoHttp from "pino-http";
@@ -7,7 +7,8 @@ import { logger } from "./lib/logger";
 import dotenv from "dotenv";
 
 dotenv.config();
-const app: Express = express();
+
+const app = express() as any;
 
 app.use(
   pinoHttp({
