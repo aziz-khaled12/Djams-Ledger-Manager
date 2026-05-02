@@ -6,13 +6,15 @@ import path from "path";
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
 
-  const port = Number(env.VITE_PORT);
-  const basePath = env.VITE_BASE_PATH;
+  const port = Number(env.VITE_PORT) || 5173;
+  const basePath = env.VITE_BASE_PATH || "/";
   const apiUrl = env.VITE_API_URL;
 
-  if (!port) throw new Error("VITE_PORT is not defined");
-  if (!basePath) throw new Error("VITE_BASE_PATH is not defined");
-  if (!apiUrl) throw new Error("VITE_API_URL is not defined");
+  if (!apiUrl && mode !== "production") {
+    throw new Error("VITE_API_URL is not defined");
+  } else if (!apiUrl) {
+    console.warn("WARNING: VITE_API_URL is not defined. Ensure it is set in Vercel.");
+  }
 
   return {
     base: basePath || "/",
