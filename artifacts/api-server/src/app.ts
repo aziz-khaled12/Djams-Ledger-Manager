@@ -1,4 +1,4 @@
-import express, { type Express } from "express";
+import express, { Express } from "express";
 import cors from "cors";
 import session from "express-session";
 import pinoHttp from "pino-http";
@@ -58,7 +58,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   session({
     name: "djams.sid",
-    secret: process.env.SESSION_SECRET ?? "djams-dev-secret-change-in-production",
+    secret:
+      process.env.SESSION_SECRET ?? "djams-dev-secret-change-in-production",
     resave: false,
     saveUninitialized: false,
     cookie: {
