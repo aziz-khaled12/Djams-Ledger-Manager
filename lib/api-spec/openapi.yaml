@@ -1,0 +1,956 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: Djam's Food & Drink Management System API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: workers
+    description: Worker/staff management
+  - name: attendance
+    description: Attendance logging
+  - name: advances
+    description: Worker advances (سلفيات)
+  - name: payouts
+    description: Worker payout records
+  - name: suppliers
+    description: Supplier & expense management
+  - name: revenue
+    description: Revenue/Z-report entries
+  - name: menu
+    description: Menu item management
+  - name: orders
+    description: Customer orders (KDS)
+  - name: dashboard
+    description: Dashboard analytics
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # ─── WORKERS ───────────────────────────────────────────────────────────────
+  /workers:
+    get:
+      operationId: listWorkers
+      tags: [workers]
+      summary: List all workers
+      responses:
+        "200":
+          description: List of workers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Worker"
+    post:
+      operationId: createWorker
+      tags: [workers]
+      summary: Create a new worker
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWorkerBody"
+      responses:
+        "201":
+          description: Worker created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Worker"
+
+  /workers/{id}:
+    get:
+      operationId: getWorker
+      tags: [workers]
+      summary: Get worker by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Worker
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Worker"
+    put:
+      operationId: updateWorker
+      tags: [workers]
+      summary: Update worker
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWorkerBody"
+      responses:
+        "200":
+          description: Updated worker
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Worker"
+    delete:
+      operationId: deleteWorker
+      tags: [workers]
+      summary: Delete worker
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /workers/{id}/balance:
+    get:
+      operationId: getWorkerBalance
+      tags: [workers]
+      summary: Get live balance for worker
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Worker balance info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkerBalance"
+
+  # ─── ATTENDANCE ─────────────────────────────────────────────────────────────
+  /attendance:
+    get:
+      operationId: listAttendance
+      tags: [attendance]
+      summary: List attendance records
+      parameters:
+        - name: workerId
+          in: query
+          schema:
+            type: integer
+        - name: month
+          in: query
+          description: "YYYY-MM format"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Attendance records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Attendance"
+    post:
+      operationId: logAttendance
+      tags: [attendance]
+      summary: Log attendance for a worker
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAttendanceBody"
+      responses:
+        "201":
+          description: Attendance logged
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Attendance"
+
+  /attendance/{id}:
+    delete:
+      operationId: deleteAttendance
+      tags: [attendance]
+      summary: Delete attendance record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── ADVANCES ───────────────────────────────────────────────────────────────
+  /advances:
+    get:
+      operationId: listAdvances
+      tags: [advances]
+      summary: List advances
+      parameters:
+        - name: workerId
+          in: query
+          schema:
+            type: integer
+        - name: month
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Advances
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Advance"
+    post:
+      operationId: createAdvance
+      tags: [advances]
+      summary: Create an advance for a worker
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAdvanceBody"
+      responses:
+        "201":
+          description: Advance created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Advance"
+
+  /advances/{id}:
+    delete:
+      operationId: deleteAdvance
+      tags: [advances]
+      summary: Delete advance
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── PAYOUTS ────────────────────────────────────────────────────────────────
+  /payouts:
+    get:
+      operationId: listPayouts
+      tags: [payouts]
+      summary: List payout history
+      parameters:
+        - name: workerId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Payouts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Payout"
+    post:
+      operationId: createPayout
+      tags: [payouts]
+      summary: Clear balance (full payout) for a worker
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePayoutBody"
+      responses:
+        "201":
+          description: Payout recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payout"
+
+  # ─── SUPPLIERS ──────────────────────────────────────────────────────────────
+  /suppliers:
+    get:
+      operationId: listSuppliers
+      tags: [suppliers]
+      summary: List all expense/supplier records
+      parameters:
+        - name: month
+          in: query
+          description: "YYYY-MM format"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Supplier records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Supplier"
+    post:
+      operationId: createSupplier
+      tags: [suppliers]
+      summary: Create a supplier expense record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSupplierBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Supplier"
+
+  /suppliers/{id}:
+    put:
+      operationId: updateSupplier
+      tags: [suppliers]
+      summary: Update supplier record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSupplierBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Supplier"
+    delete:
+      operationId: deleteSupplier
+      tags: [suppliers]
+      summary: Delete supplier record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /suppliers/monthly-total:
+    get:
+      operationId: getSuppliersMonthlyTotal
+      tags: [suppliers]
+      summary: Get total supplier expenses for a month
+      parameters:
+        - name: month
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Monthly total
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MonthlyTotal"
+
+  # ─── REVENUE ────────────────────────────────────────────────────────────────
+  /revenue:
+    get:
+      operationId: listRevenue
+      tags: [revenue]
+      summary: List Z-report revenue entries
+      parameters:
+        - name: month
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Revenue entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RevenueEntry"
+    post:
+      operationId: createRevenue
+      tags: [revenue]
+      summary: Add a Z-report revenue entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRevenueBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RevenueEntry"
+
+  /revenue/{id}:
+    delete:
+      operationId: deleteRevenue
+      tags: [revenue]
+      summary: Delete revenue entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── MENU ────────────────────────────────────────────────────────────────────
+  /menu:
+    get:
+      operationId: listMenuItems
+      tags: [menu]
+      summary: List all menu items
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Menu items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MenuItem"
+    post:
+      operationId: createMenuItem
+      tags: [menu]
+      summary: Create a menu item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMenuItemBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MenuItem"
+
+  /menu/{id}:
+    put:
+      operationId: updateMenuItem
+      tags: [menu]
+      summary: Update a menu item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMenuItemBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MenuItem"
+    delete:
+      operationId: deleteMenuItem
+      tags: [menu]
+      summary: Delete a menu item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── ORDERS ──────────────────────────────────────────────────────────────────
+  /orders:
+    get:
+      operationId: listOrders
+      tags: [orders]
+      summary: List orders (KDS)
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, ready, completed]
+      responses:
+        "200":
+          description: Orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+    post:
+      operationId: createOrder
+      tags: [orders]
+      summary: Place a customer order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrderBody"
+      responses:
+        "201":
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /orders/{id}/status:
+    put:
+      operationId: updateOrderStatus
+      tags: [orders]
+      summary: Update order status (mark ready / complete)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOrderStatusBody"
+      responses:
+        "200":
+          description: Updated order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  # ─── DASHBOARD ───────────────────────────────────────────────────────────────
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get financial summary for a month
+      parameters:
+        - name: month
+          in: query
+          required: true
+          description: "YYYY-MM"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    Worker:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        dailyRate:
+          type: number
+        role:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, name, dailyRate, role, createdAt]
+
+    CreateWorkerBody:
+      type: object
+      properties:
+        name:
+          type: string
+        dailyRate:
+          type: number
+        role:
+          type: string
+      required: [name, dailyRate, role]
+
+    WorkerBalance:
+      type: object
+      properties:
+        workerId:
+          type: integer
+        workerName:
+          type: string
+        totalWorkUnits:
+          type: number
+        dailyRate:
+          type: number
+        totalEarned:
+          type: number
+        totalAdvances:
+          type: number
+        totalPaidOut:
+          type: number
+        currentBalance:
+          type: number
+      required: [workerId, workerName, totalWorkUnits, dailyRate, totalEarned, totalAdvances, totalPaidOut, currentBalance]
+
+    Attendance:
+      type: object
+      properties:
+        id:
+          type: integer
+        workerId:
+          type: integer
+        date:
+          type: string
+          format: date
+        units:
+          type: number
+          description: "1.0 = full day, 0.5 = half day, 0.25 = 2 hours, etc."
+        note:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, workerId, date, units, createdAt]
+
+    CreateAttendanceBody:
+      type: object
+      properties:
+        workerId:
+          type: integer
+        date:
+          type: string
+          format: date
+        units:
+          type: number
+        note:
+          type: string
+      required: [workerId, date, units]
+
+    Advance:
+      type: object
+      properties:
+        id:
+          type: integer
+        workerId:
+          type: integer
+        amount:
+          type: number
+        note:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, workerId, amount, createdAt]
+
+    CreateAdvanceBody:
+      type: object
+      properties:
+        workerId:
+          type: integer
+        amount:
+          type: number
+        note:
+          type: string
+      required: [workerId, amount]
+
+    Payout:
+      type: object
+      properties:
+        id:
+          type: integer
+        workerId:
+          type: integer
+        amount:
+          type: number
+        note:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, workerId, amount, createdAt]
+
+    CreatePayoutBody:
+      type: object
+      properties:
+        workerId:
+          type: integer
+        amount:
+          type: number
+        note:
+          type: string
+      required: [workerId, amount]
+
+    Supplier:
+      type: object
+      properties:
+        id:
+          type: integer
+        supplierName:
+          type: string
+        item:
+          type: string
+        amount:
+          type: number
+        date:
+          type: string
+          format: date
+        note:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, supplierName, item, amount, date, createdAt]
+
+    CreateSupplierBody:
+      type: object
+      properties:
+        supplierName:
+          type: string
+        item:
+          type: string
+        amount:
+          type: number
+        date:
+          type: string
+          format: date
+        note:
+          type: string
+      required: [supplierName, item, amount, date]
+
+    MonthlyTotal:
+      type: object
+      properties:
+        month:
+          type: string
+        total:
+          type: number
+      required: [month, total]
+
+    RevenueEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+          format: date
+        amount:
+          type: number
+        note:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, date, amount, createdAt]
+
+    CreateRevenueBody:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        amount:
+          type: number
+        note:
+          type: string
+      required: [date, amount]
+
+    MenuItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+          enum: [pizza, burger, drink, sandwich, dessert, other]
+        price:
+          type: number
+        ingredients:
+          type: string
+        available:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, name, category, price, ingredients, available, createdAt]
+
+    CreateMenuItemBody:
+      type: object
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+          enum: [pizza, burger, drink, sandwich, dessert, other]
+        price:
+          type: number
+        ingredients:
+          type: string
+        available:
+          type: boolean
+      required: [name, category, price, ingredients]
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+        tableNumber:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+        status:
+          type: string
+          enum: [pending, ready, completed]
+        note:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, tableNumber, items, status, createdAt, updatedAt]
+
+    OrderItem:
+      type: object
+      properties:
+        menuItemId:
+          type: integer
+        name:
+          type: string
+        quantity:
+          type: integer
+        price:
+          type: number
+      required: [menuItemId, name, quantity, price]
+
+    CreateOrderBody:
+      type: object
+      properties:
+        tableNumber:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              menuItemId:
+                type: integer
+              quantity:
+                type: integer
+            required: [menuItemId, quantity]
+        note:
+          type: string
+      required: [tableNumber, items]
+
+    UpdateOrderStatusBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, ready, completed]
+      required: [status]
+
+    DashboardSummary:
+      type: object
+      properties:
+        month:
+          type: string
+        totalRevenue:
+          type: number
+        totalSupplierCosts:
+          type: number
+        totalAdvances:
+          type: number
+        totalPayouts:
+          type: number
+        netProfit:
+          type: number
+        totalWorkersCount:
+          type: integer
+        pendingOrdersCount:
+          type: integer
+      required: [month, totalRevenue, totalSupplierCosts, totalAdvances, totalPayouts, netProfit, totalWorkersCount, pendingOrdersCount]
