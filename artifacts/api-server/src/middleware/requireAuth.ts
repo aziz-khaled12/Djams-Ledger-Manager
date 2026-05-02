@@ -1,9 +1,9 @@
-import type { Request, Response, NextFunction } from "express";
+import type { RequestHandler } from "express";
 
-export function requireAuth(req: Request, res: Response, next: NextFunction) {
+export const requireAuth: RequestHandler = (req, res, next) => {
   const session = (req as any).session;
   if (session?.userId) {
     return next();
   }
   return res.status(401).json({ error: "Authentication required" });
-}
+};

@@ -16,7 +16,7 @@ import budgetAlertsRouter from "./budget-alerts";
 import menuCategoriesRouter from "./menu-categories";
 import { requireAuth } from "../middleware/requireAuth";
 
-const router = Router() as any;
+const router = Router();
 
 router.use(healthRouter);
 router.use("/auth", authRouter);
