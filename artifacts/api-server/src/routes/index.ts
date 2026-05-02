@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router } from "express";
 import healthRouter from "./health";
 import authRouter from "./auth";
 import workersRouter from "./workers";
@@ -16,7 +16,7 @@ import budgetAlertsRouter from "./budget-alerts";
 import menuCategoriesRouter from "./menu-categories";
 import { requireAuth } from "../middleware/requireAuth";
 
-const router: IRouter = Router();
+const router = Router() as any;
 
 router.use(healthRouter);
 router.use("/auth", authRouter);
