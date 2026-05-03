@@ -1,8 +1,9 @@
 {
+  "version": 2,
   "functions": {
     "dist/index.mjs": {
       "runtime": "@vercel/node"
-    }
+  }
   },
   "routes": [
     {
