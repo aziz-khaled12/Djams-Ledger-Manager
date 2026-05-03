@@ -13,7 +13,9 @@ export default defineConfig(({ mode }) => {
   if (!apiUrl && mode !== "production") {
     throw new Error("VITE_API_URL is not defined");
   } else if (!apiUrl) {
-    console.warn("WARNING: VITE_API_URL is not defined. Ensure it is set in Vercel.");
+    console.warn(
+      "WARNING: VITE_API_URL is not defined. Ensure it is set in Vercel.",
+    );
   }
 
   return {
@@ -43,13 +45,6 @@ export default defineConfig(({ mode }) => {
       allowedHosts: true,
       fs: {
         strict: true,
-      },
-      proxy: {
-        "/api": {
-          target: apiUrl,
-          changeOrigin: true,
-          secure: false,
-        },
       },
     },
     preview: {

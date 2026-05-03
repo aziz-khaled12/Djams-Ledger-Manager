@@ -1,5 +1,9 @@
 import { createRoot } from "react-dom/client";
+import { setBaseUrl } from "@workspace/api-client-react";
 import App from "./App";
 import "./index.css";
+
+// Use direct API URL instead of relative proxy
+setBaseUrl(import.meta.env.VITE_API_URL || null);
 
 createRoot(document.getElementById("root")!).render(<App />);
