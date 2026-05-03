@@ -1,8 +1,25 @@
-import serverless from "serverless-http";
 import app from "./app";
 import { logger } from "./lib/logger";
 
-// Optional: log cold starts
-logger.info("Serverless function initialized");
+const rawPort = process.env["PORT"];
 
-export default serverless(app);
+if (!rawPort) {
+  throw new Error(
+    "PORT environment variable is required but was not provided.",
+  );
+}
+
+const port = Number(rawPort);
+
+if (Number.isNaN(port) || port <= 0) {
+  throw new Error(`Invalid PORT value: "${rawPort}"`);
+}
+
+app.listen(port, (err: any) => {
+  if (err) {
+    logger.error({ err }, "Error listening on port");
+    process.exit(1);
+  }
+
+  logger.info({ port }, "Server listening");
+});

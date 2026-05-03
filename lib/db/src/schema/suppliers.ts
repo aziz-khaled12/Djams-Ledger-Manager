@@ -7,7 +7,7 @@ export const suppliersTable = pgTable("suppliers", {
   supplierName: text("supplier_name").notNull(),
   item: text("item").notNull(),
   amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
-  date: date("date").notNull(),
+  date: date("date", { mode: "date" }).notNull(),
   note: text("note"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
