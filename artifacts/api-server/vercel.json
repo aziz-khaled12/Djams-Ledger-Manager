@@ -1,5 +1,7 @@
 {
   "version": 2,
+  "framework": "express",
+  
   "installCommand": "pnpm install --frozen-lockfile",
   "buildCommand": "pnpm run build",
   "builds": [
