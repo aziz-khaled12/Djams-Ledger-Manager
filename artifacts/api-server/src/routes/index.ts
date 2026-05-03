@@ -1,5 +1,4 @@
 import { Router } from "express";
-import healthRouter from "./health";
 import authRouter from "./auth";
 import workersRouter from "./workers";
 import attendanceRouter from "./attendance";
@@ -18,13 +17,12 @@ import { requireAuth } from "../middleware/requireAuth";
 
 const router = Router();
 
-router.use(healthRouter);
 router.use("/auth", authRouter);
 
 /* Public routes — no auth required */
 router.use("/menu", menuRouter);
 router.use("/orders", ordersRouter);
-router.use("/menu-categories", menuCategoriesRouter);   // reading category names is public
+router.use("/menu-categories", menuCategoriesRouter); // reading category names is public
 
 /* All routes below this line require a valid session */
 router.use(requireAuth);
